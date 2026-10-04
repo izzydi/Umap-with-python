@@ -1,14 +1,37 @@
-# Umap-with-python
+# Supervised UMAP in Python
 
-UMAP (Uniform Manifold Approximation and Projection) is a popular dimensionality reduction technique in machine learning and data science that
-is widely used for data visualization and clustering. 
-It is implemented in several programming languages including Python.
+A Python notebook exploring **Uniform Manifold Approximation and Projection (UMAP)** for dimensionality reduction and visualization of a high-dimensional classification dataset.
 
-In Python, the UMAP library is available in the scikit-learn package, which is one of the most widely used machine learning libraries in Python. 
-The UMAP implementation in scikit-learn provides a flexible and efficient way to perform dimensionality reduction for high-dimensional data.
+## Project overview
 
-The UMAP library in Python allows users to specify several hyperparameters such as the number of neighbors, the distance metric, and the minimum distance between points.
-Additionally, it provides a number of useful visualization tools that allow users to explore the structure of their data in a low-dimensional space.
+The notebook samples a high-dimensional dataset, preprocesses the predictors, fits a supervised two-dimensional UMAP embedding and visualizes the resulting manifold.
 
-Overall, UMAP is a powerful tool for data visualization and dimensionality reduction in Python, and it has been widely used in many applications such as bioinformatics,
-image analysis, and natural language processing
+## Repository contents
+
+- [`v_01.ipynb`](v_01.ipynb) — Jupyter notebook containing the complete workflow.
+
+## Methods and tools
+
+The notebook uses:
+
+- `pandas` and `NumPy` for data handling,
+- `umap-learn` for supervised UMAP,
+- `scikit-learn` for preprocessing and classification utilities,
+- `matplotlib` and `umap.plot` for visualization.
+
+The preprocessing pipeline applies a `QuantileTransformer` followed by `StandardScaler`, then fits UMAP with a Manhattan distance metric.
+
+## Data requirements
+
+The notebook references a large local CSV dataset through a machine-specific absolute path. That source dataset is not included in this repository, so the path must be changed before the notebook can be reproduced elsewhere.
+
+## Reproducing the analysis
+
+1. Install Python and Jupyter.
+2. Install the required packages, including `pandas`, `numpy`, `scikit-learn`, `matplotlib` and `umap-learn[plot]`.
+3. Update the CSV path in `v_01.ipynb` to point to the source dataset.
+4. Run the notebook from top to bottom.
+
+## Scope
+
+This repository is a focused dimensionality-reduction experiment intended to demonstrate supervised UMAP and visualization of high-dimensional data.
