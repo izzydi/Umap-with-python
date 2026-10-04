@@ -1,7 +1,7 @@
 """Supervised UMAP workflow for high-dimensional wave-function data.
 
-The script keeps preprocessing fitted strictly on the training set, then applies
-that fitted transform and the trained UMAP model to held-out and validation data.
+Preprocessing is fitted strictly on the training set. The same fitted transform and
+trained UMAP model are then applied to held-out and optional validation data.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from sklearn.preprocessing import QuantileTransformer, StandardScaler
 
 RANDOM_STATE = 42
 TARGET_COLUMN = 112
+EXPECTED_COLUMNS = TARGET_COLUMN + 1
 SAMPLE_SIZE = 2000
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,16 +26,32 @@ DATA_DIR = ROOT / "data"
 OUTPUT_DIR = ROOT / "outputs"
 
 
+def validate_shape(df: pd.DataFrame, source: Path) -> pd.DataFrame:
+    """Validate the source schema and retain 112 predictors plus the target."""
+    if df.shape[1] < EXPECTED_COLUMNS:
+        raise ValueError(
+            f"{source} must contain at least {EXPECTED_COLUMNS} columns; "
+            f"found {df.shape[1]}."
+        )
+    return df.iloc[:, :EXPECTED_COLUMNS].copy()
+
+
 def load_dataset(path: Path, *, skiprows: int = 1_700_000, nrows: int = 800_000) -> pd.DataFrame:
-    """Load the source data and retain 112 predictors plus the target column."""
+    """Load the large source data and validate its expected schema."""
+    if not path.exists():
+        raise FileNotFoundError(f"Missing {path}. See data/README.md for the expected layout.")
     df = pd.read_csv(path, header=None, skiprows=skiprows, nrows=nrows)
-    if df.shape[1] < TARGET_COLUMN + 1:
-        raise ValueError(f"Expected at least {TARGET_COLUMN + 1} columns, found {df.shape[1]}.")
-    return df.iloc[:, : TARGET_COLUMN + 1].copy()
+    return validate_shape(df, path)
+
+
+def load_validation(path: Path) -> pd.DataFrame:
+    """Load a validation CSV using the same expected feature/target layout."""
+    df = pd.read_csv(path, header=None)
+    return validate_shape(df, path)
 
 
 def split_xy(df: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray]:
-    """Return predictors and target from a prepared dataframe."""
+    """Return predictors and target from a validated dataframe."""
     x = df.drop(columns=TARGET_COLUMN)
     y = df[TARGET_COLUMN].to_numpy()
     return x, y
@@ -55,13 +72,12 @@ def plot_embedding(embedding: np.ndarray, labels: np.ndarray, title: str, output
 
 def main() -> None:
     source_path = DATA_DIR / "wave_functions.csv"
-    if not source_path.exists():
-        raise FileNotFoundError(
-            f"Missing {source_path}. See data/README.md for the expected data layout."
-        )
-
     df = load_dataset(source_path)
+
     sample_n = min(SAMPLE_SIZE, len(df))
+    if sample_n < 4:
+        raise ValueError("The source dataset is too small for a stratified train/test split.")
+
     sampled = df.sample(n=sample_n, replace=False, random_state=RANDOM_STATE)
     x, y = split_xy(sampled)
 
@@ -73,9 +89,14 @@ def main() -> None:
         random_state=RANDOM_STATE,
     )
 
-    # Fit preprocessing on training data only to avoid information leakage.
+    # Learn all data-dependent preprocessing from training data only.
+    n_quantiles = min(1000, len(x_train))
     preprocessor = make_pipeline(
-        QuantileTransformer(output_distribution="normal", random_state=RANDOM_STATE),
+        QuantileTransformer(
+            n_quantiles=n_quantiles,
+            output_distribution="normal",
+            random_state=RANDOM_STATE,
+        ),
         StandardScaler(),
     )
     x_train_scaled = preprocessor.fit_transform(x_train)
@@ -109,8 +130,7 @@ def main() -> None:
     validation_dir = DATA_DIR / "validation"
     if validation_dir.exists():
         for validation_path in sorted(validation_dir.glob("*.csv")):
-            validation_df = pd.read_csv(validation_path, header=None)
-            validation_df = validation_df.iloc[:, : TARGET_COLUMN + 1]
+            validation_df = load_validation(validation_path)
             if len(validation_df) > 800:
                 validation_df = validation_df.sample(
                     n=800,
