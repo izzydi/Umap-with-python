@@ -2,40 +2,39 @@
 
 A dimensionality-reduction project using **supervised UMAP** to learn and visualize low-dimensional structure in high-dimensional wave-function data.
 
-## Project overview
+## Primary workflow
 
-The repository includes a clean, reusable Python pipeline in addition to the original exploratory notebook. The production-style script performs the train/test split **before** fitting preprocessing, learns the transformation from training data only, fits supervised UMAP and then applies the fitted preprocessing and manifold consistently to held-out and external-validation data.
+[`src/supervised_umap.py`](src/supervised_umap.py) is the audited implementation. It creates the train/test split before learned preprocessing, fits all transformations on training data only, trains supervised UMAP on the training partition and reuses the same fitted objects for held-out and optional validation data.
 
 ## Repository structure
 
 ```text
 .
 ├── src/
-│   └── supervised_umap.py
+│   └── supervised_umap.py            # audited workflow
 ├── data/
-│   └── README.md
-├── outputs/                         # created when the script runs
+│   └── README.md                     # expected raw-data layout
+├── archive/
+│   ├── README.md
+│   └── legacy_supervised_umap_exploration.ipynb
+├── outputs/                          # created when the script runs
 ├── requirements.txt
-├── supervised_umap_exploration.ipynb
 └── README.md
 ```
 
 ## Methods and tools
 
-- `pandas` and `NumPy` for data handling,
-- `scikit-learn` for splitting and preprocessing,
-- `umap-learn` for supervised manifold learning,
-- `matplotlib` for saved visualizations.
+The cleaned pipeline uses `pandas`/`NumPy` for data handling, `scikit-learn` for stratified splitting and preprocessing, `umap-learn` for supervised manifold learning and `matplotlib` for saved visualizations.
 
-The cleaned pipeline uses a `QuantileTransformer` and `StandardScaler` fitted on the training set only, followed by a supervised two-dimensional UMAP model with Manhattan distance.
+A `QuantileTransformer` and `StandardScaler` are fitted on training data only. Validation files are schema-checked before transformation, and project-relative paths replace the original machine-specific paths.
 
-## Reproducibility improvements
+## Legacy notebook
 
-The original exploratory work is preserved in [`supervised_umap_exploration.ipynb`](supervised_umap_exploration.ipynb), while the reusable `src/supervised_umap.py` removes the notebook's machine-specific paths and pre-split preprocessing by using project-relative paths and training-only preprocessing.
+The original exploratory notebook is preserved under [`archive/`](archive/) for transparency. It contains historical local paths and preprocessing choices that are not suitable for unbiased evaluation, so it is no longer presented as the recommended implementation.
 
 ## Data
 
-Raw data are not included. See [`data/README.md`](data/README.md) for the expected filenames and structure.
+Raw data are not included. See [`data/README.md`](data/README.md) for expected filenames and structure.
 
 ## Run locally
 
@@ -51,4 +50,4 @@ Generated plots are written to `outputs/`.
 
 ## Scope
 
-This repository demonstrates reproducible dimensionality reduction and out-of-sample UMAP transformation for high-dimensional classification data. It is maintained as a portfolio project rather than a packaged production service.
+This repository demonstrates reproducible dimensionality reduction and out-of-sample UMAP transformation for high-dimensional classification data. It is maintained as a portfolio project rather than a production inference service.
