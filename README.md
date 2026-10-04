@@ -1,37 +1,54 @@
 # Supervised UMAP in Python
 
-A Python notebook exploring **Uniform Manifold Approximation and Projection (UMAP)** for dimensionality reduction and visualization of a high-dimensional classification dataset.
+A dimensionality-reduction project using **supervised UMAP** to learn and visualize low-dimensional structure in high-dimensional wave-function data.
 
 ## Project overview
 
-The notebook samples a high-dimensional dataset, preprocesses the predictors, fits a supervised two-dimensional UMAP embedding and visualizes the resulting manifold.
+The repository now includes a clean, reusable Python pipeline in addition to the original exploratory notebook. The production-style script performs the train/test split **before** fitting preprocessing, learns the transformation from training data only, fits supervised UMAP and then applies the fitted preprocessing and manifold consistently to held-out and external-validation data.
 
-## Repository contents
+## Repository structure
 
-- [`v_01.ipynb`](v_01.ipynb) — Jupyter notebook containing the complete workflow.
+```text
+.
+├── src/
+│   └── supervised_umap.py
+├── data/
+│   └── README.md
+├── outputs/                 # created when the script runs
+├── requirements.txt
+├── v_01.ipynb               # original exploratory notebook
+└── README.md
+```
 
 ## Methods and tools
 
-The notebook uses:
-
 - `pandas` and `NumPy` for data handling,
-- `umap-learn` for supervised UMAP,
-- `scikit-learn` for preprocessing and classification utilities,
-- `matplotlib` and `umap.plot` for visualization.
+- `scikit-learn` for splitting and preprocessing,
+- `umap-learn` for supervised manifold learning,
+- `matplotlib` for saved visualizations.
 
-The preprocessing pipeline applies a `QuantileTransformer` followed by `StandardScaler`, then fits UMAP with a Manhattan distance metric.
+The cleaned pipeline uses a `QuantileTransformer` and `StandardScaler` fitted on the training set only, followed by a supervised two-dimensional UMAP model with Manhattan distance.
 
-## Data requirements
+## Reproducibility improvements
 
-The notebook references a large local CSV dataset through a machine-specific absolute path. That source dataset is not included in this repository, so the path must be changed before the notebook can be reproduced elsewhere.
+The original notebook is preserved as a historical exploration, but it contains machine-specific paths and fitted preprocessing before the train/test split. The new `src/supervised_umap.py` removes those limitations by using project-relative paths and training-only preprocessing.
 
-## Reproducing the analysis
+## Data
 
-1. Install Python and Jupyter.
-2. Install the required packages, including `pandas`, `numpy`, `scikit-learn`, `matplotlib` and `umap-learn[plot]`.
-3. Update the CSV path in `v_01.ipynb` to point to the source dataset.
-4. Run the notebook from top to bottom.
+Raw data are not included. See [`data/README.md`](data/README.md) for the expected filenames and structure.
+
+## Run locally
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+python src/supervised_umap.py
+```
+
+Generated plots are written to `outputs/`.
 
 ## Scope
 
-This repository is a focused dimensionality-reduction experiment intended to demonstrate supervised UMAP and visualization of high-dimensional data.
+This repository demonstrates reproducible dimensionality reduction and out-of-sample UMAP transformation for high-dimensional classification data. It is maintained as a portfolio project rather than a packaged production service.
