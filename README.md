@@ -10,23 +10,30 @@ A dimensionality-reduction project using **supervised UMAP** to learn and visual
 
 ```text
 .
+├── .github/workflows/ci.yml          # Python 3.12 CI
 ├── src/
 │   └── supervised_umap.py            # audited workflow
+├── tests/
+│   └── test_smoke.py                 # schema/split smoke tests
 ├── data/
-│   └── README.md                     # expected raw-data layout
+│   └── README.md                     # expected raw-data layout and provenance note
 ├── archive/
 │   ├── README.md
 │   └── legacy_supervised_umap_exploration.ipynb
 ├── outputs/                          # created when the script runs
-├── requirements.txt
+├── requirements.txt                 # pinned dependencies
 └── README.md
 ```
 
-## Methods and tools
+## Methods and validation
 
 The cleaned pipeline uses `pandas`/`NumPy` for data handling, `scikit-learn` for stratified splitting and preprocessing, `umap-learn` for supervised manifold learning and `matplotlib` for saved visualizations.
 
-A `QuantileTransformer` and `StandardScaler` are fitted on training data only. Validation files are schema-checked before transformation, and project-relative paths replace the original machine-specific paths.
+A `QuantileTransformer` and `StandardScaler` are fitted on training data only. Supervised UMAP is then fitted on the transformed training partition with training labels. The held-out and optional validation rows use `transform()` only; they do not influence preprocessing or the learned manifold.
+
+## Reproducibility and CI
+
+Direct Python dependencies are pinned in [`requirements.txt`](requirements.txt). GitHub Actions creates a clean Python 3.12 environment, installs the pinned dependencies, compiles the source and runs synthetic smoke tests on every push and pull request. Those tests do not require the unavailable raw wave-function dataset.
 
 ## Legacy notebook
 
@@ -34,7 +41,7 @@ The original exploratory notebook is preserved under [`archive/`](archive/) for 
 
 ## Data
 
-Raw data are not included. See [`data/README.md`](data/README.md) for expected filenames and structure.
+Raw data are not included and the historical materials do not provide a stable public source/version/checksum. See [`data/README.md`](data/README.md) for the exact schema and provenance limitation.
 
 ## Run locally
 
@@ -43,6 +50,7 @@ python -m venv .venv
 # Windows: .venv\Scripts\activate
 # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
+python -m unittest discover -s tests -v
 python src/supervised_umap.py
 ```
 
