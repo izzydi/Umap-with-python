@@ -4,7 +4,7 @@ A dimensionality-reduction project using **supervised UMAP** to learn and visual
 
 ## Project overview
 
-The repository now includes a clean, reusable Python pipeline in addition to the original exploratory notebook. The production-style script performs the train/test split **before** fitting preprocessing, learns the transformation from training data only, fits supervised UMAP and then applies the fitted preprocessing and manifold consistently to held-out and external-validation data.
+The repository includes a clean, reusable Python pipeline in addition to the original exploratory notebook. The production-style script performs the train/test split **before** fitting preprocessing, learns the transformation from training data only, fits supervised UMAP and then applies the fitted preprocessing and manifold consistently to held-out and external-validation data.
 
 ## Repository structure
 
@@ -14,9 +14,9 @@ The repository now includes a clean, reusable Python pipeline in addition to the
 │   └── supervised_umap.py
 ├── data/
 │   └── README.md
-├── outputs/                 # created when the script runs
+├── outputs/                         # created when the script runs
 ├── requirements.txt
-├── v_01.ipynb               # original exploratory notebook
+├── supervised_umap_exploration.ipynb
 └── README.md
 ```
 
@@ -31,7 +31,7 @@ The cleaned pipeline uses a `QuantileTransformer` and `StandardScaler` fitted on
 
 ## Reproducibility improvements
 
-The original notebook is preserved as a historical exploration, but it contains machine-specific paths and fitted preprocessing before the train/test split. The new `src/supervised_umap.py` removes those limitations by using project-relative paths and training-only preprocessing.
+The original exploratory work is preserved in [`supervised_umap_exploration.ipynb`](supervised_umap_exploration.ipynb), while the reusable `src/supervised_umap.py` removes the notebook's machine-specific paths and pre-split preprocessing by using project-relative paths and training-only preprocessing.
 
 ## Data
 
